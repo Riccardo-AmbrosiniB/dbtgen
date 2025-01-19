@@ -104,7 +104,7 @@ class Model:
         if not os.path.exists(self.target_dir):
             os.makedirs(self.target_dir)
 
-        file_path = f'{self.target_dir}/{self.file_name}'
+        file_path = os.path.join(self.target_dir,self.file_name)
 
         if not os.path.exists(file_path) or overwrite:
             with open(file_path, 'w') as model_file:
@@ -168,7 +168,7 @@ def get_models_yml(
         while os.path.abspath(parent_dir) != params.PROJECT_ROOT:
             parent_dir += '../'
             try:
-                yml = read_yaml_file(f'{parent_dir}/{models_file}')
+                yml = read_yaml_file(os.path.join(parent_dir,models_file))
                 break
             except FileNotFoundError:
                 pass
@@ -195,10 +195,12 @@ def main(args):
                 print(ignore_yml)
 
                 try:
+                    # Calculate the path by joining the target directory with the subpath for the model in the input
+                    # directory obtained by removing the INPUT_MODELS_DIR from sub_dir_path
                     model_dir = os.path.abspath(
-                        sub_dir_path.replace(
-                            params.INPUT_MODELS_DIR,
-                            params.TARGET_MODELS_DIR
+                        os.path.join(
+                            params.TARGET_MODELS_DIR,
+                            os.path.relpath(sub_dir_path, params.INPUT_MODELS_DIR)
                         )
                     )
 
